@@ -14,7 +14,7 @@ services:
       - ${DATA_PATH:-sonarqube_extensions}/sqext:/opt/sonarqube/extensions
       - ${DATA_PATH:-sonarqube_logs}/sqlog:/opt/sonarqube/logs
     ports:
-      - "9000:9000"
+      - "${PORT:-9000}:9000"
   db:
     image: postgres:12
     environment:
