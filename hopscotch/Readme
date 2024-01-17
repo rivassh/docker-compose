@@ -1,0 +1,6 @@
+```
+docker run -it  --name hopscotch -p 3000:3000 -p 3100:3100 -p 3170:3170 --network sharenet --env-file .env  hoppscotch/hoppscotch
+```
+
+* run a postgres on sharenet too
+
