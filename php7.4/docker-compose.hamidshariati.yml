@@ -1,0 +1,20 @@
+version: '3.8'
+
+
+
+services:
+  fpm:
+
+    container_name: hamidshariati_fpm
+
+  nginx:
+
+    container_name: hamidshariati_nginx
+
+  mysql:
+
+    container_name: hamidshariati_mysql
+
+  phpmyadmin:
+
+    container_name: hamidshariati_pm

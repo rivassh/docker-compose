@@ -1,0 +1,67 @@
+version: '3.8'
+services:
+  fpm:
+
+    #container_name: hamidshariati_fpm
+    build:
+      context: ./php-fpm
+      dockerfile: Dockerfile
+    tty: true
+    volumes:
+      - /media/h/windows-archive/works/hamidshariati.ir:/var/www/html
+      - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
+      - ./sock:/var/run/php-fpm
+    links:
+      - mysql
+    networks:
+      - default
+  nginx:
+
+#    container_name: hamidshariati_nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 83:80
+      - 446:443
+    volumes:
+      - /media/h/windows-archive/works/hamidshariati.ir:/var/www/html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./sock:/var/run/php-fpm
+      - ./log/nginx:/var/log/nginx
+      - /etc/ssl:/etc/ssl
+    networks:
+      - default
+
+  mysql:
+
+#    container_name: hamidshariati_mysql
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS:-123789}
+      - MYSQL_USER=${DB_USER:-user}
+      - MYSQL_PASSWORD=${DB_PASS:-123789}
+      - MYSQL_DATABASE=${DB_NAME:-db}
+    volumes:
+      - ../db:/var/lib/mysql
+
+      - ./custom-mysql.cnf:/etc/mysql/conf.d/custom-mysql.cnf
+    networks:
+      - default
+  phpmyadmin:
+
+#    container_name: hamidshariati_pm
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8083:80
+    environment:
+      - PMA_HOST=mysql
+    volumes:
+      - ./tmp:/tmp
+volumes:
+  sock: null
+networks:
+  default: null
+
+
