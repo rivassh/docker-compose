@@ -7,5 +7,4 @@ db
 shared
 opt
 *.sql
-docker-compose.*.yml
-
+.vscode
