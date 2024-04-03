@@ -8,6 +8,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
+
 /**
  * User model
  *
@@ -56,6 +57,10 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
+            [['username', 'email', 'password','name_and_fam','social','shenasname','sadere','maried','tahsilat','phone','father_name'], 'required'],
+            [['username', 'email'], 'string', 'max' => 255],
+            ['email', 'email'],
+            // Add other rules as necessary
         ];
     }
 
@@ -179,6 +184,11 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
+    public function getPassword()
+    {
+        return Yii::$app->request->getBodyParam('password');
+    }
+
     /**
      * Generates "remember me" authentication key
      */
@@ -210,4 +220,18 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->password_reset_token = null;
     }
+
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->auth_key = \Yii::$app->security->generateRandomString();
+                $this->password_hash = \Yii::$app->security->generatePasswordHash($this->password);
+            }
+
+            return true;
+        }
+        return false;
+    }
+
 }
