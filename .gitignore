@@ -2,4 +2,4 @@
 db
 *.sql
 docker-compose.*.yml
-
+.idea/*

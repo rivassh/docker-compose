@@ -1,0 +1,41 @@
+# Apr 20, 2021. Based on iRedMail Easy release v2021041301.
+
+- iRedAPD: Upgrade to 5.0.
+- mlmmjadmin: Upgrade to 3.1.
+- Roundcube: Upgrade to 1.4.11.
+- Dovecot: Tracking the data of last received/delivered emails.
+- Postfix: Whitelist HELO hostnames of Outlook servers.
+- Fail2ban: Store base64 encoded log lines in SQL db.
+- iRedMail: Fix errors in script `/opt/iredmail/bin/create_user`.
+- iRedMail: Fix incorrect `/opt/iredmail/ssl/combined.pem` which contains
+  private key.
+  fixes #51
+  closes #53
+
+# Feb 2, 2021
+
+- Switch from Alpine to Ubuntu-20.04 (focal).
+
+# Nov 21, 2020
+
+- Add missing script `/usr/bin/mlmmj-amime-receive`.
+  fixes #29
+- Remove SpamAssassin rules: `URIBL_SBL`, `URIBL_SBL_A` due to too many false
+  detections.
+- Update `/opt/iredmail/bin/fail2ban/banned_db` to avoid possible SQL injection.
+- Slightly reduce concurrently processed messages to 3 (was 4). 
+- Upgrade mlmmjadmin to 3.0.5.
+
+# old
+
+- Based on alpine-3.12.1.
+- Use custom Postfix config files (main.cf/master.cf) it found under
+  /opt/iredmail/custom/postfix/.
+
+- Fixed issues:
+  - Incorrect path to uwsgi program.
+  - Missing cyrus-sasl packages required by Postfix.
+
+- Updated packages:
+    - iRedAPD-4.6
+    - iRedAdmin-1.2

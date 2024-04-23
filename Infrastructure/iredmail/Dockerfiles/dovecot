@@ -1,0 +1,27 @@
+FROM ubuntu:jammy
+MAINTAINER Zhang Huangbin <zhb@iredmail.org>
+EXPOSE 110 995 143 993 4190 24 12340 24242 12346
+
+ARG SCRIPTS_DIR=/docker/scripts
+
+RUN mkdir -p ${SCRIPTS_DIR}
+COPY ./scripts/add_user_vmail.sh ${SCRIPTS_DIR}/
+
+RUN /bin/sh ${SCRIPTS_DIR}/add_user_vmail.sh && \
+    rm -rf ${SCRIPTS_DIR}
+
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends dovecot-imapd dovecot-pop3d dovecot-lmtpd dovecot-managesieved dovecot-sieve dovecot-mysql && \
+    apt-get clean && apt-get autoclean && rm -rf /var/lib/apt/lists/*
+
+COPY ./config/etc/dovecot/. /etc/dovecot/
+
+COPY --chown=vmail:vmail ./config/opt/iredmail/bin/dovecot/scan_reported_mails /opt/iredmail/bin/dovecot/scan_reported_mails
+
+RUN mkdir -p /opt/iredmail/bin/dovecot/sieve
+COPY --chown=vmail:vmail ./config/opt/iredmail/bin/dovecot/sieve/. /opt/iredmail/bin/dovecot/sieve/
+RUN chown vmail:vmail /opt/iredmail/bin/dovecot/scan_reported_mails /opt/iredmail/bin/dovecot/sieve/* && \
+    chmod 0550 /opt/iredmail/bin/dovecot/scan_reported_mails /opt/iredmail/bin/dovecot/sieve/*
+
+COPY ./entrypoints/dovecot.sh /entrypoint.sh
+
+CMD /bin/sh /entrypoint.sh

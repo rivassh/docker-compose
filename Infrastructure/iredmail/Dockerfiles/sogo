@@ -1,0 +1,54 @@
+#
+# This file is managed by iRedMail Team <support@iredmail.org> with Ansible,
+# please do __NOT__ modify it manually.
+#
+
+FROM ubuntu:jammy
+MAINTAINER Zhang Huangbin <zhb@iredmail.org>
+
+# SOGo uses port `20000` by default.
+EXPOSE 20000
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV LC_ALL C
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE yes
+
+ARG SOGO_MIRROR_SITE=https://packages.sogo.nu/nightly/5/ubuntu/
+ARG ENTRYPOINTS_DIR=/docker/entrypoints
+
+# Create temporary file /usr/share/doc/sogo/test.sh to avoid an error in the
+# post-install script of SOGo package.
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends apt-transport-https \
+        apt-utils \
+		ca-certificates \
+		supervisor \
+		mariadb-client \
+		cron \
+        gnupg2 \
+        && perl -pi -e \
+        's#http://archive.ubuntu.com/ubuntu/#[trusted=yes] http://archive.ubuntu.com/ubuntu/#g' \
+        /etc/apt/sources.list \
+    && perl -pi -e \
+        's#http://security.ubuntu.com/ubuntu/#[trusted=yes] http://archive.ubuntu.com/ubuntu/#g' \
+        /etc/apt/sources.list \
+        && apt-key adv --keyserver keyserver.ubuntu.com --recv-key 0x810273C4 \
+	&& echo "deb ${SOGO_MIRROR_SITE} bionic bionic" > /etc/apt/sources.list.d/sogo-nightly.list \
+	&& apt-get update \
+    && mkdir -p /usr/share/doc/sogo/ \
+    && touch /usr/share/doc/sogo/test.sh \
+	&& apt-get -y install sogo sogo-activesync memcached \
+    && rm -f /usr/share/doc/sogo/test.sh \
+    && apt-get clean && apt-get autoclean && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p ${ENTRYPOINTS_DIR}
+COPY ./entrypoints/functions.sh ${ENTRYPOINTS_DIR}/
+COPY ./settings.conf ${ENTRYPOINTS_DIR}/
+
+# Copy config files.
+COPY sogo/. /
+COPY config/etc/supervisord.conf /etc/supervisor/
+COPY config/etc/supervisor.d /etc/
+COPY ./entrypoints/sogo.sh /entrypoint.sh
+
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
