@@ -1,0 +1,10 @@
+#
+# This file is managed by iRedMail Team <support@iredmail.org> with Ansible,
+# please do __NOT__ modify it manually.
+#
+
+hosts       = PH_SQL_SERVER_ADDRESS:PH_SQL_SERVER_PORT
+user        = vmail
+password    = PH_VMAIL_DB_PASSWORD
+dbname      = vmail
+query       = SELECT maillists.transport FROM maillists,domain WHERE maillists.address='%s' AND maillists.active=1 AND maillists.domain = domain.domain AND domain.active=1

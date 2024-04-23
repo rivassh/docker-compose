@@ -1,0 +1,18 @@
+#
+# This file is managed by iRedMail Team <support@iredmail.org> with Ansible,
+# please do __NOT__ modify it manually.
+#
+
+# References:
+#   - Pregreet test: http://www.postfix.org/POSTSCREEN_README.html#pregreet
+
+[pregreet]
+backend = polling
+journalmatch =
+enabled = true
+filter = postfix-pregreet.iredmail
+logpath = /var/log/mail.log tail
+maxretry = 1
+bantime = 86400
+action = iptables-multiport[name=pregreet, port="25,587,465,2525", protocol=tcp]
+         banned_db[name=pregreet, port="25,587,465,2525", protocol=tcp]

@@ -1,0 +1,28 @@
+#Ansible: MariaDB: Backup databases.
+40 3 * * * /bin/bash /var/vmail/backup/backup_mysql.sh
+#Ansible: freshclam: update database regularly.
+1 */6 * * * freshclam --quiet --foreground --config-file=/etc/clamav/freshclam.conf --daemon-notify=/etc/clamav/clamd.conf >/dev/null
+#Ansible: Scan spam/ham reported by end users.
+*/10 * * * * /bin/bash /opt/iredmail/bin/dovecot/scan_reported_mails >/dev/null
+#Ansible: Optimize the full text search index.
+10 3 * * * /usr/bin/doveadm fts optimize -A &>/dev/null
+#Ansible: iRedAPD: Clean up expired tracking records hourly.
+1 * * * * /usr/bin/python3 /opt/iredapd/tools/cleanup_db.py >/dev/null
+#Ansible: iRedAPD: Convert SPF DNS record of specified domain names to IP
+*/30 * * * * /usr/bin/python3 /opt/iredapd/tools/spf_to_greylist_whitelists.py >/dev/null
+#Ansible: iRedAdmin: cleanup Amavisd SQL database
+1 2 * * * /usr/bin/python3 /opt/www/iredadmin/tools/cleanup_amavisd_db.py >/dev/null
+#Ansible: iRedAdmin: Add cron job cleanup iRedAdmin SQL database.
+10 2 * * * /usr/bin/python3 /opt/www/iredadmin/tools/cleanup_db.py >/dev/null
+#Ansible: iRedAdmin: Delete mailboxes on file system which belong to removed accounts.
+20 2 * * * /usr/bin/python3 /opt/www/iredadmin/tools/delete_mailboxes.py
+#Ansible: mlmmj: maintenance for mailing lists.
+0 */2 * * * find /var/vmail/mlmmj -mindepth 1 -maxdepth 1 -type d -exec /usr/bin/mlmmj-maintd -F -d {} \;
+#Ansible: Fail2ban: Unban IP addresses pending for removal (stored in SQL db).
+* * * * * /bin/bash /opt/iredmail/bin/fail2ban/banned_db unban_db
+#Ansible: Roundcube: cleanup Roundcube SQL database
+2 2 * * * /usr/bin/php /opt/www/roundcubemail/bin/cleandb.sh >/dev/null
+#Ansible: Roundcube: cleanup Roundcube temporary files under 'temp/' directory
+3 2 * * * /usr/bin/php /opt/www/roundcubemail/bin/gc.sh >/dev/null
+#Ansible: iRedMail: Apply all custom settings after system reboot.
+@reboot /bin/bash /opt/iredmail/bin/apply_all_custom_settings

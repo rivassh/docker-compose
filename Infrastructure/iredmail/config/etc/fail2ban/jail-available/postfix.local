@@ -1,0 +1,13 @@
+#
+# This file is managed by iRedMail Team <support@iredmail.org> with Ansible,
+# please do __NOT__ modify it manually.
+#
+
+[postfix]
+backend = polling
+journalmatch =
+enabled     = true
+filter      = postfix.iredmail
+logpath     = /var/log/mail.log tail
+action      = iptables-multiport[name=postfix, port="25,587,465,2525", protocol=tcp]
+              banned_db[name=postfix, port="25,587,465,2525", protocol=tcp]
