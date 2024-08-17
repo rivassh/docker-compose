@@ -21,7 +21,7 @@ services:
       - PULSE_COOKIE=/run/pulse/cookie      # Use host audio
       - WEBSMSD_PORT=${WEBSMSD_PORT-80}     # WEBSMSD internal port
     volumes:
-      - tele-conf:/srv                      # Persistent storage
+      - ./tele-conf:/srv                      # Persistent storage
       - ./pulse:/run/pulse:rshared          # Use host audio
       - /etc/localtime:/etc/localtime:ro    # Use host timezone
 
