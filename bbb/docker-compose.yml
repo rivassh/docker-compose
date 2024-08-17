@@ -2,3 +2,5 @@ services:
   app:
     entrypoint: [bin/start]
     image: bigbluebutton/greenlight:v2
+    ports:
+      - 85:80
