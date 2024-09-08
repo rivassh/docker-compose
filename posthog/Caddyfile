@@ -1,0 +1,7 @@
+{
+
+}
+posthog.local, http://, https:// {
+encode gzip zstd
+reverse_proxy http://web:8000
+}
