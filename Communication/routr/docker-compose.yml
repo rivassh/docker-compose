@@ -1,0 +1,13 @@
+services:
+  routr:
+    image: fonoster/routr-one:latest
+    environment:
+      EXTERNAL_ADDRS: ${DOCKER_HOST_ADDRESS}
+    ports:
+      - 51908:51908
+      - 5060:5060/udp
+    volumes:
+      - /home/hamid/datapga/postgres:/var/lib/postgresql/data
+
+volumes:
+  shared:
