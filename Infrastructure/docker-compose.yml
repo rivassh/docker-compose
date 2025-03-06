@@ -1,5 +1,4 @@
-version: "2"
-
+#https://nginxproxymanager.com/guide/#quick-setup
 services:
   nexus:
     image: sonatype/nexus3
