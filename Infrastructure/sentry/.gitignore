@@ -1,0 +1,107 @@
+# Error reporting choice cache
+.reporterrors
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+sentry_install_log*.txt
+sentry_reset_log*.txt
+sentry_restore_log*.txt
+sentry_backup_log*.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Ipython Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# https://docs.docker.com/compose/extends/
+docker-compose.override.yml
+
+# https://docs.docker.com/compose/environment-variables/#using-the---env-file--option
+.env.custom
+
+*.tar
+data/
+
+# Editor / IDE
+.vscode/tags
+.idea
+
+# custom Sentry config
+sentry/sentry.conf.py
+sentry/config.yml
+sentry/*.bak
+sentry/backup.json
+sentry/enhance-image.sh
+sentry/requirements.txt
+relay/credentials.json
+relay/config.yml
+symbolicator/config.yml
+geoip/GeoIP.conf
+geoip/*.mmdb
+geoip/.geoipupdate.lock
+
+# integration testing
+_integration-test/custom-ca-roots/nginx/*
+sentry/test-custom-ca-roots.py
+
+# OSX minutia
+.DS_Store
