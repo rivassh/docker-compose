@@ -194,7 +194,7 @@ services:
     image: camunda/optimize:${CAMUNDA_OPTIMIZE_VERSION}
     container_name: optimize
     ports:
-      - "8083:8090"
+      - "8095:8090"
     environment: # https://docs.camunda.io/docs/self-managed/optimize-deployment/setup/installation/#available-environment-variables
       - OPTIMIZE_ELASTICSEARCH_HOST=elasticsearch
       - OPTIMIZE_ELASTICSEARCH_HTTP_PORT=9200
