@@ -1,0 +1,30 @@
+# https://tm-apex.hashnode.dev/docker-compose-for-oracle-apex
+services:
+  devdb:
+    container_name: devdb
+    image: container-registry.oracle.com/database/express:latest
+    ports:
+    - 1521:1521
+    environment:
+    - ORACLE_PWD=1230123
+    volumes:
+    - dev-vol:/opt/oracle/oradata
+    hostname: oracledev
+  ords:
+    container_name: ords
+    # restart: always
+    depends_on:
+    - devdb
+    volumes:
+    - ./variables:/opt/oracle/variables
+    ports:
+    - 8282:8181
+    image: container-registry.oracle.com/database/ords:latest
+volumes:
+  dev-vol:
+    name: db-vol
+    external: false
+networks:
+  default:
+    name: demo-network
+

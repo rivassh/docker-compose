@@ -1,5 +1,5 @@
 x-restart-policy: &restart_policy
-  restart: unless-stopped
+  restart: none #unless-stopped
 x-depends_on-healthy: &depends_on-healthy
   condition: service_healthy
 x-depends_on-default: &depends_on-default

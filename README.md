@@ -1,5 +1,13 @@
 # docker-compose for several stacks and projects
 
+# install compose plugin on docker
+
+source: https://github.com/docker/compose?tab=readme-ov-file#linux
+
+download from: https://github.com/docker/compose/releases
+
+or use docker compose plugin: https://docs.docker.com/compose/install
+
 # portainer
 
 * A dashboard to monitoring over docker contaiers, images etc
