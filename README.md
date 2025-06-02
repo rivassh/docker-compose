@@ -15,3 +15,21 @@ or use docker compose plugin: https://docs.docker.com/compose/install
 `docker-compose -f Infrastructure/portainer/docker-compose.yml up -d`
 
 docker run -it --cpus=0.2 -e DEBUG=cypress:launcher:* --entrypoint=cypress cypress/included:13.10.0 info
+
+# List of projects
+
+## awesome-compose
+
+## CMS
+
+## Communication
+
+## Distributed
+
+## Examples
+
+## Frameworks
+
+## Infrastructure
+
+### Keycloak

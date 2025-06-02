@@ -4,7 +4,7 @@ services:
   db:
     # Note: Check the recommend version here: https://docs.nextcloud.com/server/latest/admin_manual/installation/system_requirements.html#server
     image: mariadb:lts
-    restart: always
+    # restart: always
     command: --transaction-isolation=READ-COMMITTED
     volumes:
       - db:/var/lib/mysql
@@ -22,7 +22,7 @@ services:
 
   app:
     image: nextcloud
-    restart: always
+    # restart: always
     ports:
       - 8080:80
     depends_on:
