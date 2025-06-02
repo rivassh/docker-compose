@@ -4,3 +4,4 @@ db
 docker-compose.*.yml
 .idea/*
 old?
+.vscode/*

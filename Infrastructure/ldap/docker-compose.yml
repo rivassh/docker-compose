@@ -1,0 +1,13 @@
+# https://medium.com/@amrutha_20595/setting-up-openldap-server-with-docker-d38781c259b2
+services:
+  ldap:
+    image: osixia/openldap:1.5.0
+    container_name: ldap
+    environment:
+      - LDAP_ORGANISATION=hamidshariatiir
+      - LDAP_DOMAIN=hamidshariati.ir
+      - "LDAP_BASE_DN=dc=hamidshariati,dc=in"
+      - LDAP_ADMIN_PASSWORD=password
+    ports:
+      - 389:389
+      - 636:636

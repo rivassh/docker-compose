@@ -24,9 +24,17 @@ services:
       interval: 15s
       timeout: 2s
       retries: 15
-    command: ["start-dev", "--http-port", "7080", "--https-port", "7443", "--import-realm"]
-    volumes: # Ignore if you don't have realm-export.json to migrate data
-      - ../keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    command:
+      [
+        "start-dev",
+        "--http-port",
+        "7080",
+        "--https-port",
+        "7443",
+        "--import-realm",
+      ]
+    # volumes: # Ignore if you don't have realm-export.json to migrate data
+    #   - ../keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
     ports:
       - "7080:7080"
       - "7443:7443"

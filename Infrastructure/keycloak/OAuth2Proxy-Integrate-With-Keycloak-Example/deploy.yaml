@@ -1,0 +1,74 @@
+services:
+  oauth2-proxy:
+    image: bitnami/oauth2-proxy:7.3.0
+    container_name: oauth2-proxy1
+    command:
+      - --http-address
+      - 0.0.0.0:4180 
+    environment:
+      OAUTH2_PROXY_UPSTREAMS: http://nginx1/
+      OAUTH2_PROXY_PROVIDER_DISPLAY_NAME: Keycloak
+      OAUTH2_PROXY_PROVIDER: keycloak-oidc 
+      OAUTH2_PROXY_OIDC_ISSUER_URL: http://${keycloakIP}:7080/auth/realms/Test1
+      OAUTH2_PROXY_CLIENT_ID: nginx
+      OAUTH2_PROXY_CLIENT_SECRET: xzwfZ9vzJBFntl0jiESPJGvRBj6UPpxT
+      OAUTH2_PROXY_PASS_ACCESS_TOKEN: true
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: true      
+      OAUTH2_PROXY_EMAIL_DOMAINS: '*' 
+      OAUTH2_PROXY_REDIRECT_URL: http://${keycloakIP}:4180/oauth2/callback 
+      OAUTH2_PROXY_COOKIE_SECRET: cYW8ox+3ySQZ5M+92hsZhnUqiQqM5U7B
+      OAUTH2_PROXY_SKIP_OIDC_DISCOVERY: true
+      OAUTH2_PROXY_COOKIE_SECURE: false
+      OAUTH2_PROXY_LOGIN_URL: http://${keycloakIP}:7080/auth/realms/Test1/protocol/openid-connect/auth
+      OAUTH2_PROXY_REDEEM_URL: http://${keycloakIP}:7080/auth/realms/Test1/protocol/openid-connect/token
+      OAUTH2_PROXY_OIDC_JWKS_URL: http://${keycloakIP}:7080/auth/realms/Test1/protocol/openid-connect/certs
+      OAUTH2_PROXY_COOKIE_CSRF_PER_REQUEST: true
+      
+
+    ports:
+      - 4180:4180 
+    
+    depends_on:
+      - keycloak
+      
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    hostname: keycloak1
+    domainname: keycloak1.local
+    container_name: keycloak1
+    environment:
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 7080
+      KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+      KC_LOG_LEVEL: info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7080/health/ready"]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    command: ["start-dev", "--http-port", "7080", "--https-port", "7443", "--import-realm"]  
+
+    volumes:
+      - "./keycloak/initial.json:/opt/keycloak/data/import/realm-export.json"
+    dns:
+     - 8.8.8.8
+     - 4.4.4.4
+     - 192.168.9.45
+    ports:
+      - "7080:7080"
+      - "7443:7443"
+    
+  nginx1:
+    image: nginx
+    hostname: nginx1
+    domainname: nginx1.local
+    container_name: nginx1
+      
+      
+    volumes:
+      - "./web/congrats.html:/usr/share/nginx/html/congrats.html"
+       
