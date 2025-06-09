@@ -6,22 +6,26 @@ RUN chmod -R 777 /tmp
 
 RUN ls -l /
 
-RUN apt-get update \
-    && apt-get install -y libxml2-dev libcurl4-openssl-dev unzip wget \
-    && docker-php-ext-install soap \
+RUN apt-get update 
+RUN apt-get install -y libxml2-dev -y
+RUN apt-get install unzip wget -y
+RUN apt-get install libcurl4-openssl-dev -y
+RUN docker-php-ext-install soap \
     && docker-php-ext-install mysqli \
     && docker-php-ext-install pdo \
-    && docker-php-ext-install pdo_mysql \
-    && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev  \
-    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/    \
-    && docker-php-ext-install gd \
-    && apt-get install -y zlib1g-dev \
-    && apt-get install -y libzip-dev zip \
-    && docker-php-ext-install zip \
-    && apt-get update && apt-get install -y libmemcached11 libmemcachedutil2 libmemcached-dev libz-dev git \
+    && docker-php-ext-install pdo_mysql
+RUN apt-get install -y libfreetype6-dev libjpeg62-turbo-dev 
+RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/  \
+    && docker-php-ext-install gd 
+
+RUN apt-get install -y zlib1g-dev -y
+RUN apt-get install -y libzip-dev -y
+RUN docker-php-ext-install zip 
+#RUN apt-get install -y libmemcached11 libmemcachedutil2 libmemcached-dev libz-dev
+RUN apt-get install git -y \
     && apt-get install -y libcurl4-openssl-dev pkg-config libssl-dev \
-    && apt-get autoremove -y \
-    && curl -sS https://getcomposer.org/installer | php \ 
+    && apt-get autoremove -y
+RUN curl -sS https://getcomposer.org/installer | php \ 
     && mv composer.phar /usr/local/bin/composer \
     &&  rm -rf /tmp/pear \
     && rm -rf /var/lib/apt/lists/* \
@@ -60,6 +64,6 @@ RUN useradd -d /opt -s /bin/bash -u 1000 -g 1000 nginxx
 RUN chown -R nginxx:nginxx /opt
 
 
-WORKDIR /opt
+WORKDIR /var/www/html
 
 CMD ["php-fpm", "--nodaemonize"]
