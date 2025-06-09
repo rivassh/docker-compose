@@ -14,6 +14,15 @@ services:
       - mysql
     networks:
       - default
+  mock:
+    image: v4php83-pmfpm
+    volumes:
+      - ${APP_PATH:-./app}/MockAPI-PHP:/var/www/html
+    ports:
+      - 3030:3030
+    command: 'php -S 0.0.0.0:3030 -t /var/www/html'
+    networks:
+      - default      
   nginx:
 
 #    container_name: hamidshariati_nginx
@@ -53,7 +62,7 @@ services:
 #    container_name: hamidshariati_pm
     image: phpmyadmin/phpmyadmin
     ports:
-      - 8083:80
+      - 8084:80
     environment:
       - PMA_HOST=mysql
     volumes:
