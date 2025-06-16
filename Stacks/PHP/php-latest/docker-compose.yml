@@ -67,9 +67,17 @@ services:
       - PMA_HOST=mysql
     volumes:
       - ./tmp:/tmp
+    networks:
+      - default
+
+  redis:
+    image: redis
+    networks:
+      - default
 volumes:
   sock: null
 networks:
+
   default: null
 
 
