@@ -1,20 +1,25 @@
-version: '3.8'
 services:
   web:
-    image: 'gitlab/gitlab-ee:latest'
+    image: 'gitlab/gitlab-ee:12.6.1-ee.0'
     # restart: always
     hostname: 'localhost'
     # container_name: gitlab-ce
     environment:
+      GITLAB_ROOT_PASSWORD: "testing1234"
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://localhost'
+        gitlab_rails["gitlab_shell_ssh_port"] = 2224
+        registry_external_url 'https://my.gitlab:4567'
     ports:
       - '8080:80'
       - '8443:443'
+      - '6022:6022'
+      - '4567:4567'
     volumes:
       - '$GITLAB_HOME/config:/etc/gitlab'
       - '$GITLAB_HOME/logs:/var/log/gitlab'
       - '$GITLAB_HOME/data:/var/opt/gitlab'
+#      - '$GITLAB_SRC/data:/opt/gitlab'
     networks:
       - gitlab
   gitlab-runner:
