@@ -7,7 +7,7 @@ RUN chmod -R 777 /tmp
 RUN ls -l /
 
 RUN apt-get update 
-RUN apt-get install -y libxml2-dev -y
+RUN apt-get install -y libxml2-dev 
 RUN apt-get install unzip wget -y
 RUN apt-get install libcurl4-openssl-dev -y
 RUN docker-php-ext-install soap \
@@ -22,14 +22,14 @@ RUN apt-get install -y zlib1g-dev -y
 RUN apt-get install -y libzip-dev -y
 RUN docker-php-ext-install zip 
 #RUN apt-get install -y libmemcached11 libmemcachedutil2 libmemcached-dev libz-dev
+RUN apt install ca-certificates curl gnupg -y
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN NODE_MAJOR=20 && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN apt update
+RUN apt install nodejs -y
 RUN apt-get install git -y \
     && apt-get install -y libcurl4-openssl-dev pkg-config libssl-dev \
     && apt-get autoremove -y
-RUN curl -sS https://getcomposer.org/installer | php \ 
-    && mv composer.phar /usr/local/bin/composer \
-    &&  rm -rf /tmp/pear \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
 
 
 RUN set -x \
@@ -54,6 +54,12 @@ RUN docker-php-ext-install mysqli
 #     && dpkg -i libmcrypt4_2.5.8-3.4+b1_amd64.deb \
 #     && dpkg -i libmcrypt-dev_2.5.8-3.4+b1_amd64.deb \
 #     && docker-php-ext-install mcrypt
+RUN curl -sS https://getcomposer.org/installer | php \ 
+    && mv composer.phar /usr/local/bin/composer \
+    &&  rm -rf /tmp/pear \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
 
 ENV http_proxy ''
 ENV https_proxy ''
@@ -62,6 +68,7 @@ RUN groupadd -g 1000 nginxx
 RUN useradd -d /opt -s /bin/bash -u 1000 -g 1000 nginxx
 # User and group own home directory
 RUN chown -R nginxx:nginxx /opt
+
 
 
 WORKDIR /var/www/html

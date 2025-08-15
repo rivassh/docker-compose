@@ -1,0 +1,14 @@
+services:
+   php-cli:
+       image: php:cli
+       volumes:
+       - ./envoy:/app
+       tty: true
+       command: sleep 1000
+
+   composer:
+       image: composer/composer
+       volumes:
+       - ./envoy:/app
+       tty: true
+       command: top

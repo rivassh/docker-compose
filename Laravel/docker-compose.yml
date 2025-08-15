@@ -1,0 +1,9 @@
+services:
+   laravel:
+       build: 
+         context: .
+         dockerfile: Dockerfile
+         
+       volumes:
+       - ./laravel:/var/www/html
+

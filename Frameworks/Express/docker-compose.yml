@@ -1,0 +1,9 @@
+services:
+   node:
+      image: node
+      volumes:
+      - ${APP_PATH:-./app}:/app
+      ports: 
+      - ${APP_PORT:-4000}:3000
+      tty: true
+      entrypoint: top

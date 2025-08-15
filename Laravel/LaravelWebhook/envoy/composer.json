@@ -1,0 +1,5 @@
+{
+    "require-dev": {
+        "laravel/envoy": "^2.10"
+    }
+}
