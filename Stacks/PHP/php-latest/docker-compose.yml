@@ -1,8 +1,9 @@
 services:
   fpm:
 
-    #container_name: hamidshariati_fpm
-    image: v4php83-pmfpm
+    build: 
+       context: ./php-fpm
+       dockerfile: Dockerfile
     tty: true
     volumes:
       - ${APP_PATH:-./app}:/var/www/html

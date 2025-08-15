@@ -7,8 +7,10 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=${API_URL}
+    tty: true
+    entrypoint: top
     volumes:
-      - ./app:/app
+      - ${APP_PATH:-./app}:/app
       - /app/node_modules
   nginx:
     build:

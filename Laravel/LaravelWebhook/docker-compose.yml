@@ -1,0 +1,9 @@
+services:
+   webhooks:
+       build: 
+         context: .
+         dockerfile: Dockerfile
+         
+    #    volumes:
+    #    - ./webhooks:/var/www/html
+
