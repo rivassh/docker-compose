@@ -1,0 +1,27 @@
+services:
+  # service name
+  rest-api:
+    # Dockerfile location
+    build: "."
+    # Exposes the port 3000 for internal
+    ports:
+      - "3000"
+    # always restart when the service went down
+    restart: always
+    # number of replicas
+    deploy:
+      replicas: 2
+  # nginx load balancer
+  nginx:
+    # latest stable alpine nginx image
+    image: nginx:stable-alpine
+    # nginx configuration
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    # start nginx after the service up successfully
+    depends_on:
+      - rest-api
+    # map the nginx port 80 to docker port 3000
+    ports:
+      - "3000:80"
+
