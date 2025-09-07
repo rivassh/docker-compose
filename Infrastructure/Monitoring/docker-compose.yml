@@ -1,0 +1,145 @@
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.2
+    container_name: elasticsearch
+    environment:
+      - node.name=es-node1
+      - cluster.name=elk-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - elknet
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.9.2
+    container_name: logstash
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./logstash/pipeline/:/usr/share/logstash/pipeline/
+    ports:
+      - "5044:5044"   # Beats input if needed
+      - "514:514/udp" # Syslog input UDP
+    networks:
+      - elknet
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.9.2
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    networks:
+      - elknet
+
+  graylog:
+    image: graylog/graylog:5.0
+    container_name: graylog
+    depends_on:
+      - mongodb
+      - elasticsearch
+    ports:
+      - "9000:9000"   # Web UI
+      - "12201:12201/udp" # GELF UDP input
+      - "515:514/udp" # Syslog input (if conflict with logstash, change ports)
+    networks:
+      - elknet
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - elknet
+
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql
+    container_name: zabbix-server
+    environment:
+      DB_SERVER_HOST: mysql
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix_pass
+      MYSQL_DATABASE: zabbix_db
+    depends_on:
+      - mysql
+    ports:
+      - "10051:10051"
+    networks:
+      - elknet
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-mysql
+    container_name: zabbix-web
+    environment:
+      DB_SERVER_HOST: mysql
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix_pass
+      MYSQL_DATABASE: zabbix_db
+      PHP_TZ: Asia/Tehran
+    depends_on:
+      - mysql
+      - zabbix-server
+    ports:
+      - "8080:8080"
+    networks:
+      - elknet
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: zabbix_db
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix_pass
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks:
+      - elknet
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafanadata:/var/lib/grafana
+    networks:
+      - elknet
+
+  ntopng:
+    image: ntop/ntopng:latest
+    container_name: ntopng
+    ports:
+      - "3001:3000"
+    networks:
+      - elknet
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+volumes:
+  esdata:
+  mongodata:
+  mysqldata:
+  grafanadata:
+
+networks:
+  elknet:
+    driver: bridge
+
