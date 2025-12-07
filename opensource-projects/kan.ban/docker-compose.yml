@@ -1,0 +1,37 @@
+services:
+  web:
+    image: ghcr.io/kanbn/kan:latest
+    container_name: kan-web
+    ports:
+      - "3000:3000"
+    networks:
+      - kan-network
+    environment:
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: your_auth_secret
+      POSTGRES_URL: postgresql://kan:your_postgres_password@postgres:5432/kan_db
+      NEXT_PUBLIC_ALLOW_CREDENTIALS: true
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: kan-db
+    environment:
+      POSTGRES_DB: kan_db
+      POSTGRES_USER: kan
+      POSTGRES_PASSWORD: your_postgres_password
+    ports:
+      - 5432:5432
+    volumes:
+      - kan_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - kan-network
+
+networks:
+  kan-network:
+
+volumes:
+  kan_postgres_data:
