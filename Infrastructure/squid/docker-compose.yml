@@ -1,0 +1,12 @@
+services:
+  squid:
+    image: sameersbn/squid
+    container_name: squid-proxy
+    restart: unless-stopped
+    ports:
+      - "${PORT}:3128"
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+      - ./auth:/etc/squid/auth:ro
+      - ./cache:/var/spool/squid
+ 
