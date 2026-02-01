@@ -1,0 +1,5 @@
+$ORIGIN start-team.ir.
+@         IN  SOA start-team.ir. me.hamidshariati.ir 2502011720 7200 3600 1209600 3600
+
+@         IN  A   185.18.215.60
+*         IN  A   185.18.215.60

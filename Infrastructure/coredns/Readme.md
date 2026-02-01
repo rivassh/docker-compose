@@ -1,0 +1,1 @@
+copy example without .example

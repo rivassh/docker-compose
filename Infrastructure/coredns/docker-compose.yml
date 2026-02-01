@@ -1,0 +1,13 @@
+services:
+  coredns:
+    image: coredns/coredns:latest
+    container_name: coredns
+    command: -conf /etc/coredns/Corefile -dns.port 53
+    restart: always
+    ports:
+      - "53:53"
+      - "53:53/udp"
+      - "8380:8080"
+    volumes:
+      - ./Corefile:/etc/coredns/Corefile
+      - ./db.homelab.int:/etc/coredns/db.homelab.int
