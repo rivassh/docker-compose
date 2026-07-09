@@ -15,6 +15,7 @@ services:
       retries: 3
     networks:
       - elastic
+    restart: unless-stopped
   logstash:
     image: logstash:7.16.1
     container_name: log
@@ -34,6 +35,7 @@ services:
     networks:
       - elastic
     command: logstash -f /usr/share/logstash/pipeline/logstash-nginx.config
+    restart: unless-stopped
   kibana:
     image: kibana:7.16.1
     container_name: kib
@@ -43,6 +45,7 @@ services:
       - elasticsearch
     networks:
       - elastic
+    restart: unless-stopped
 networks:
   elastic:
     driver: bridge

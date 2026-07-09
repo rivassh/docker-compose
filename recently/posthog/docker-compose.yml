@@ -70,7 +70,7 @@ services:
         environment:
             SENTRY_DSN: 'https://public@sentry.example.com/1'
             SITE_URL: https://posthog.local
-            SECRET_KEY: 32ce44bfc5727e61cd7805636b0c36de63f097bd5e049ea0e5593d1b
+            SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
         image: posthog/posthog:latest
     web:
         extends:
@@ -83,7 +83,7 @@ services:
         environment:
             SENTRY_DSN: 'https://public@sentry.example.com/1'
             SITE_URL: https://posthog.local
-            SECRET_KEY: 32ce44bfc5727e61cd7805636b0c36de63f097bd5e049ea0e5593d1b
+            SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
             OBJECT_STORAGE_ENDPOINT: http://objectstorage:19000
             OBJECT_STORAGE_ENABLED: true
         depends_on:
@@ -101,7 +101,7 @@ services:
         environment:
             SENTRY_DSN: 'https://public@sentry.example.com/1'
             SITE_URL: https://posthog.local
-            SECRET_KEY: 32ce44bfc5727e61cd7805636b0c36de63f097bd5e049ea0e5593d1b
+            SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
         depends_on:
             - db
             - redis
@@ -140,7 +140,7 @@ services:
         environment:
             SENTRY_DSN: 'https://public@sentry.example.com/1'
             SITE_URL: https://posthog.local
-            SECRET_KEY: 32ce44bfc5727e61cd7805636b0c36de63f097bd5e049ea0e5593d1b
+            SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
             SKIP_ASYNC_MIGRATIONS_SETUP: 0
 
     # Temporal containers
@@ -186,7 +186,7 @@ services:
         environment:
             SENTRY_DSN: 'https://public@sentry.example.com/1'
             SITE_URL: https://posthog.local
-            SECRET_KEY: 32ce44bfc5727e61cd7805636b0c36de63f097bd5e049ea0e5593d1b
+            SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY}
         depends_on:
             - db
             - redis

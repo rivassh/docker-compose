@@ -6,7 +6,7 @@ services:
     ports:
     - 1521:1521
     environment:
-    - ORACLE_PWD=1230123
+    - ORACLE_PWD=${ORACLE_PWD:?Set ORACLE_PWD}
     volumes:
     - dev-vol:/opt/oracle/oradata
     hostname: oracledev

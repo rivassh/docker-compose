@@ -1,4 +1,3 @@
-version: '3'
 services:
     confluence:
         image: "atlassian/confluence-server"

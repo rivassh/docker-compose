@@ -1,4 +1,3 @@
-version: '3.3'
 services:
     deemix:
         image: registry.gitlab.com/bockiii/deemix-docker
@@ -12,4 +11,5 @@ services:
             - UMASK_SET=022
         ports:
             - 6595:6595
+        restart: unless-stopped
 

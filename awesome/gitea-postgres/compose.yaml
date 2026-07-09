@@ -6,7 +6,7 @@ services:
       - DB_HOST=db:5432
       - DB_NAME=gitea
       - DB_USER=gitea
-      - DB_PASSWD=gitea
+      - DB_PASSWD=${DB_PASSWD:?Set DB_PASSWD}
     restart: always
     volumes:
       - git_data:/data
@@ -16,7 +16,7 @@ services:
     image: postgres:alpine
     environment:
       - POSTGRES_USER=gitea
-      - POSTGRES_PASSWORD=gitea
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       - POSTGRES_DB=gitea
     restart: always
     volumes:

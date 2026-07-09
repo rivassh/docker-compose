@@ -1,4 +1,3 @@
-version: "3"
 services:
   watchtower:
     image: containrrr/watchtower
@@ -7,3 +6,4 @@ services:
     command: --interval 3600 --http-api-metrics --http-api-token <device_name>
     ports:
       - 8080:8080
+    restart: unless-stopped

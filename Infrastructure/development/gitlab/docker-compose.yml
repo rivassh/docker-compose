@@ -5,7 +5,7 @@ services:
     hostname: 'localhost'
     # container_name: gitlab-ce
     environment:
-      GITLAB_ROOT_PASSWORD: "testing1234"
+      GITLAB_ROOT_PASSWORD: "${GITLAB_ROOT_PASSWORD:?Set GITLAB_ROOT_PASSWORD}"
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'http://localhost'
         gitlab_rails["gitlab_shell_ssh_port"] = 2224

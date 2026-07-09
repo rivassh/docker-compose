@@ -5,6 +5,7 @@ services:
        - ./envoy:/app
        tty: true
        command: sleep 1000
+       restart: unless-stopped
 
    composer:
        image: composer/composer

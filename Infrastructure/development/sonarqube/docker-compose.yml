@@ -1,4 +1,3 @@
-version: "3"
 
 services:
   sonarqube:
@@ -8,7 +7,7 @@ services:
     environment:
       SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
       SONAR_JDBC_USERNAME: sonar
-      SONAR_JDBC_PASSWORD: sonar
+      SONAR_JDBC_PASSWORD: ${SONAR_JDBC_PASSWORD:?Set SONAR_JDBC_PASSWORD}
     volumes:
       - ${DATA_PATH:-sonarqube_data}/sqdata:/opt/sonarqube/data
       - ${DATA_PATH:-sonarqube_extensions}/sqext:/opt/sonarqube/extensions
@@ -19,7 +18,7 @@ services:
     image: postgres:12
     environment:
       POSTGRES_USER: sonar
-      POSTGRES_PASSWORD: sonar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     volumes:
       - ${DATA_PATH:-postgresql}/pgsql:/var/lib/postgresql
       - ${DATA_PATH:-postgresql_data}/pgsqldata:/var/lib/postgresql/data

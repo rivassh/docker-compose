@@ -8,3 +8,4 @@ services:
     stop_signal: SIGINT
     ports:
       - '8000:8000'
+    restart: unless-stopped

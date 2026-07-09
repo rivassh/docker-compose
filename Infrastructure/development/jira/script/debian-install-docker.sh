@@ -1,4 +1,6 @@
 #!/bin/bash
+set -eo pipefail
+
 sudo apt-get update -y \
 && sudo apt-get install -y \
     apt-transport-https \

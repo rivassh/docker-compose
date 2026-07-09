@@ -1,4 +1,3 @@
-version: "3.7"
 
 services:
   # This service runs the backend app in the port 3170

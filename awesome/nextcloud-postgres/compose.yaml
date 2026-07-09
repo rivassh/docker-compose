@@ -3,7 +3,7 @@ services:
     image: nextcloud:apache
     environment:
       - POSTGRES_HOST=db
-      - POSTGRES_PASSWORD=nextcloud
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       - POSTGRES_DB=nextcloud
       - POSTGRES_USER=nextcloud
     ports:
@@ -14,7 +14,7 @@ services:
   db:
     image: postgres:alpine
     environment:
-      - POSTGRES_PASSWORD=nextcloud
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       - POSTGRES_DB=nextcloud
       - POSTGRES_USER=nextcloud
     restart: always

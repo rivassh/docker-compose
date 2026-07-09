@@ -7,7 +7,7 @@ services:
       - LDAP_ORGANISATION=hamidshariatiir
       - LDAP_DOMAIN=hamidshariati.ir
       - "LDAP_BASE_DN=dc=hamidshariati,dc=in"
-      - LDAP_ADMIN_PASSWORD=password
+      - LDAP_ADMIN_PASSWORD=${LDAP_ADMIN_PASSWORD:?Set LDAP_ADMIN_PASSWORD}
     ports:
       - 389:389
       - 636:636

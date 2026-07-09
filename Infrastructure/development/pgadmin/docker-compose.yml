@@ -1,5 +1,4 @@
 # https://medium.com/@vishal.sharma./run-postgresql-and-pgadmin-using-docker-compose-34120618bcf9
-version: "3.8"
 services:
   db:
     image: postgres
@@ -8,7 +7,7 @@ services:
       - "${PGADMIN_PG_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     volumes:
       - ${DATA_PATH}/postgres:/var/lib/postgresql/data
   pgadmin:
@@ -18,7 +17,7 @@ services:
       - "${PGADMIN_PGA_PORT:-8888}:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
-      PGADMIN_DEFAULT_PASSWORD: strong-password
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?Set PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - ${DATA_PATH}/pgadmin:/var/lib/pgadmin
 

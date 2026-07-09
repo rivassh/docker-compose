@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
 
@@ -7,10 +6,10 @@ services:
     container_name: mysql
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: espocrm
       MYSQL_USER: espocrm
-      MYSQL_PASSWORD: database_password
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
     volumes:
       - mysql:/var/lib/mysql
     restart: always
@@ -22,9 +21,9 @@ services:
       ESPOCRM_DATABASE_PLATFORM: Mysql
       ESPOCRM_DATABASE_HOST: mysql
       ESPOCRM_DATABASE_USER: espocrm
-      ESPOCRM_DATABASE_PASSWORD: database_password
+      ESPOCRM_DATABASE_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
       ESPOCRM_ADMIN_USERNAME: admin
-      ESPOCRM_ADMIN_PASSWORD: password
+      ESPOCRM_ADMIN_PASSWORD: ${ESPOCRM_ADMIN_PASSWORD:?Set ESPOCRM_ADMIN_PASSWORD}
       ESPOCRM_SITE_URL: "http://localhost:8080"
     volumes:
       - espocrm:/var/www/html

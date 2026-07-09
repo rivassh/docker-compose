@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 
 ROOT_DIR=/opt/cronicle
 CONF_DIR=$ROOT_DIR/conf

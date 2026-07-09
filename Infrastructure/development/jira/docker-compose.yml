@@ -1,4 +1,3 @@
-version: '3.4'
 services:
   jira:
     image: haxqer/jira:9.12.2
@@ -24,9 +23,9 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - MYSQL_DATABASE=jira
-      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
       - MYSQL_USER=jira
-      - MYSQL_PASSWORD=123123
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
     command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_bin']
 #    ports:
 #      - "13306:3306"

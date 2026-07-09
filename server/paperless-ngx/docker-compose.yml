@@ -26,7 +26,6 @@
 # For more extensive installation and update instructions, refer to the
 # documentation.
 
-version: "3.4"
 services:
   broker:
     image: docker.io/library/redis:7
@@ -42,7 +41,7 @@ services:
     environment:
       POSTGRES_DB: paperless
       POSTGRES_USER: paperless
-      POSTGRES_PASSWORD: paperless
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
 
   webserver:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest

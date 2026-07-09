@@ -1,0 +1,12 @@
+services:
+  nfs:
+    image: erichough/nfs-server:latest
+    container_name: nfs-server
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "2049:2049"
+    volumes:
+      - ./exports/infra:/exports/infra
+    environment:
+      NFS_EXPORT_0: "/exports/infra *(rw,sync,no_subtree_check,no_root_squash)"

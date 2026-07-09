@@ -24,7 +24,7 @@ services:
     build:
       context: etl
     environment:
-      DATABASE_URL: mysql://root:whalehello@db:3306/mysql
+      DATABASE_URL: mysql://root:${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}@db:3306/mysql
       KAFKA_URL: kafka://redpanda:9092/order
       RUST_BACKTRACE: full
       RUST_LOG: info
@@ -33,4 +33,4 @@ services:
   db:
     image: mariadb:10.9
     environment:
-      MYSQL_ROOT_PASSWORD: whalehello
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}

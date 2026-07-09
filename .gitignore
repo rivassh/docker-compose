@@ -1,7 +1,15 @@
 .env
+.env.prod
+.env.dev
+.env.prod.db
 db
 *.sql
+*.key
+*.pem
+*.p12
+*-secret.yaml
 docker-compose.*.yml
+docker-compose.override.yml
 .idea/*
 old?
 .vscode/*

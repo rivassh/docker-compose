@@ -4,6 +4,7 @@ services:
          context: .
          dockerfile: Dockerfile
          
-       volumes:
-       - ./laravel:/var/www/html
+        volumes:
+        - ./laravel:/var/www/html
+        restart: unless-stopped
 

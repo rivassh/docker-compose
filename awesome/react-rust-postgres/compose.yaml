@@ -21,7 +21,7 @@ services:
       - PG_DBNAME=postgres
       - PG_HOST=db
       - PG_USER=postgres
-      - PG_PASSWORD=mysecretpassword
+      - PG_PASSWORD=${PG_PASSWORD:?Set PG_PASSWORD}
     networks:
       - client-side
       - server-side
@@ -35,7 +35,7 @@ services:
     image: postgres:12-alpine
     restart: always
     environment:
-      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_PASSWORD=${PG_PASSWORD:?Set PG_PASSWORD}
     networks:
       - server-side
     ports:

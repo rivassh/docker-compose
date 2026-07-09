@@ -8,3 +8,4 @@ services:
     volumes:
       - ./angular:/project
       - /project/node_modules
+    restart: unless-stopped

@@ -6,4 +6,5 @@ services:
          
     #    volumes:
     #    - ./webhooks:/var/www/html
+        restart: unless-stopped
 

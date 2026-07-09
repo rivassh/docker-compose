@@ -3,6 +3,7 @@ services:
     image: redislabs/redismod
     ports:
       - '6379:6379'
+    restart: unless-stopped
   web:
     build:
       context: .
@@ -16,3 +17,4 @@ services:
       - .:/code
     depends_on:
       - redis
+    restart: unless-stopped

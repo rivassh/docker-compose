@@ -1,5 +1,4 @@
 # https://www.smarthomebeginner.com/portainer-docker-compose-guide/
-version: "3.9"
 
 services:
 

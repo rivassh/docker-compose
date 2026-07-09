@@ -1,0 +1,75 @@
+#!/bin/bash
+# Pre-commit hook to detect hardcoded secrets
+# Install: git config core.hooksPath .githooks
+
+set -eo pipefail
+
+RED='\033[0;31m'
+NC='\033[0m'
+
+echo "Checking for hardcoded secrets..."
+
+# Patterns that indicate hardcoded secrets
+PATTERNS=(
+    'password\s*[:=]\s*["\x27]?[a-zA-Z0-9_]{3,}'
+    'PASSWORD\s*[:=]\s*["\x27]?[a-zA-Z0-9_]{3,}'
+    'secret\s*[:=]\s*["\x27]?[a-zA-Z0-9_]{3,}'
+    'SECRET\s*[:=]\s*["\x27]?[a-zA-Z0-9_]{3,}'
+    'api[_-]?key\s*[:=]\s*["\x27]?[a-zA-Z0-9_]{10,}'
+    'API[_-]?KEY\s*[:=]\s*["\x27]?[a-zA-Z0-9_]{10,}'
+    'PRIVATE[_-]?KEY\s*[:=]\s*["\x27]?[a-zA-Z0-9_]{10,}'
+    'PRIVATE[_-]?KEY\s*[:=]\s*-----BEGIN'
+)
+
+# Files to skip
+SKIP_FILES=(
+    '\.env\.example$'
+    '\.env\.dist$'
+    'README\.md$'
+    'CHANGELOG\.md$'
+    'TODO\.md$'
+    '\.md$'
+    'LICENSE'
+    'node_modules/'
+    '.git/'
+)
+
+FOUND=0
+
+for staged_file in $(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true); do
+    # Skip certain files
+    skip=false
+    for skip_pattern in "${SKIP_FILES[@]}"; do
+        if echo "$staged_file" | grep -qE "$skip_pattern"; then
+            skip=true
+            break
+        fi
+    done
+
+    if [ "$skip" = true ]; then
+        continue
+    fi
+
+    # Only check docker-compose and env files
+    if ! echo "$staged_file" | grep -qE '\.(yml|yaml|env|conf|cfg|sh)$'; then
+        continue
+    fi
+
+    for pattern in "${PATTERNS[@]}"; do
+        if grep -nE "$pattern" "$staged_file" 2>/dev/null | grep -vE '^\s*#' | grep -vE '\$\{' | grep -vE 'Set ' | grep -vE 'your_|changeme|example|placeholder' > /dev/null 2>&1; then
+            echo -e "${RED}WARNING: Potential hardcoded secret in $staged_file:${NC}"
+            grep -nE "$pattern" "$staged_file" | grep -vE '^\s*#' | grep -vE '\$\{' | grep -vE 'Set ' | grep -vE 'your_|changeme|example|placeholder' | head -5
+            FOUND=1
+        fi
+    done
+done
+
+if [ "$FOUND" -eq 1 ]; then
+    echo ""
+    echo -e "${RED}Potential secrets detected. Please use environment variables instead of hardcoded values.${NC}"
+    echo "If these are false positives, use: git commit --no-verify"
+    exit 1
+fi
+
+echo "No hardcoded secrets detected."
+exit 0
