@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Compose Collection</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+            border-bottom: 1px solid #30363d;
+        }
+        h1 { color: #58a6ff; font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { color: #8b949e; font-size: 1.1em; }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .stat {
+            background: #161b22;
+            padding: 15px 25px;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+        }
+        .stat-number { color: #58a6ff; font-size: 1.8em; font-weight: bold; }
+        .stat-label { color: #8b949e; font-size: 0.9em; }
+        .search-box {
+            margin: 30px auto;
+            max-width: 600px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #c9d1d9;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .search-box input:focus { border-color: #58a6ff; }
+        .search-box input::placeholder { color: #484f58; }
+        .category {
+            margin: 30px 0;
+            background: #161b22;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            overflow: hidden;
+        }
+        .category-header {
+            padding: 15px 20px;
+            background: #21262d;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        .category-header:hover { background: #30363d; }
+        .category-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+        .category-count {
+            background: #30363d;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #8b949e;
+        }
+        .category-items { padding: 10px; }
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin: 5px 0;
+            background: #0d1117;
+            border-radius: 6px;
+            border: 1px solid #21262d;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .item:hover {
+            border-color: #58a6ff;
+            background: #161b22;
+        }
+        .item-icon {
+            width: 32px;
+            height: 32px;
+            background: #238636;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+        .item-icon svg { width: 18px; height: 18px; fill: white; }
+        .item-info { flex: 1; }
+        .item-name { color: #c9d1d9; font-weight: 500; }
+        .item-path { color: #8b949e; font-size: 0.85em; margin-top: 3px; font-family: monospace; }
+        .item-badge {
+            background: #1f6feb33;
+            color: #58a6ff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-right: 10px;
+        }
+        .hidden { display: none !important; }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #8b949e;
+        }
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #484f58;
+            border-top: 1px solid #21262d;
+            margin-top: 40px;
+        }
+        footer a { color: #58a6ff; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Docker Compose Collection</h1>
+            <p class="subtitle">مجموعه فایل‌های docker-compose آماده استفاده</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">فایل</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="categoryCount">0</div>
+                    <div class="stat-label">دسته‌بندی</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="جستجوی docker-compose..." autofocus>
+        </div>
+
+        <div id="categories"></div>
+        <div id="noResults" class="no-results hidden">نتیجه‌ای یافت نشد</div>
+    </div>
+
+    <footer>
+        <p>GitHub: <a href="https://github.com/rivassh/docker-compose">rivassh/docker-compose</a></p>
+    </footer>
+
+    <script>
+    const data = [
+        // Infrastructure
+        { cat: "Infrastructure", name: "Portainer", path: "Infrastructure/portainer/docker-compose.yml", tags: ["dashboard","management"] },
+        { cat: "Infrastructure", name: "Jenkins", path: "Infrastructure/jenkins/docker-compose.yml", tags: ["ci-cd","automation"] },
+        { cat: "Infrastructure", name: "Keycloak", path: "Infrastructure/keycloak/docker-compose.yml", tags: ["auth","sso"] },
+        { cat: "Infrastructure", name: "Kibana", path: "Infrastructure/kibana/docker-compose.yml", tags: ["logging","elastic"] },
+        { cat: "Infrastructure", name: "LDAP", path: "Infrastructure/ldap/docker-compose.yml", tags: ["auth","directory"] },
+        { cat: "Infrastructure", name: "Kafka", path: "Infrastructure/MessageBrokers-Streams/Kafka/docker-compose.yml", tags: ["messaging","streaming"] },
+        { cat: "Infrastructure", name: "Metabase", path: "Infrastructure/metabase/docker-compose.yml", tags: ["analytics","bi"] },
+        { cat: "Infrastructure", name: "MockServer", path: "Infrastructure/mockserver/docker-compose.yml", tags: ["testing","mock"] },
+        { cat: "Infrastructure", name: "Monitoring Stack", path: "Infrastructure/Monitoring/docker-compose.yml", tags: ["monitoring","prometheus","grafana"] },
+        { cat: "Infrastructure", name: "Grafana", path: "Infrastructure/Monitoring/grafana/docker-compose.yml", tags: ["monitoring","dashboard"] },
+        { cat: "Infrastructure", name: "Nexus", path: "Infrastructure/nexus/docker-compose.yml", tags: ["registry","repository"] },
+        { cat: "Infrastructure", name: "Nginx Proxy Manager", path: "Infrastructure/nginx/nginx-proxy-manager/docker-compose.yml", tags: ["proxy","nginx","ssl"] },
+        { cat: "Infrastructure", name: "phpMyAdmin", path: "Infrastructure/phpmyadmin/docker-compose.yml", tags: ["mysql","database","admin"] },
+        { cat: "Infrastructure", name: "Prometheus", path: "Infrastructure/promotheus/docker-compose.yml", tags: ["monitoring","metrics"] },
+        { cat: "Infrastructure", name: "Sentry", path: "Infrastructure/sentry/docker-compose.yml", tags: ["errors","tracking"] },
+        { cat: "Infrastructure", name: "Squid Cache", path: "Infrastructure/squach/cacher/docker-compose.yml", tags: ["cache","proxy"] },
+        { cat: "Infrastructure", name: "Squid Proxy", path: "Infrastructure/squid/docker-compose.yml", tags: ["proxy","cache"] },
+
+        // Infrastructure - Development
+        { cat: "Development Tools", name: "Confluence", path: "Infrastructure/development/confluence/docker-compose.yml", tags: ["wiki","documentation"] },
+        { cat: "Development Tools", name: "Docker Registry", path: "Infrastructure/development/docker-registery/compose.yaml", tags: ["registry","docker"] },
+        { cat: "Development Tools", name: "GitLab", path: "Infrastructure/development/gitlab/docker-compose.yml", tags: ["git","devops"] },
+        { cat: "Development Tools", name: "Jira", path: "Infrastructure/development/jira/docker-compose.yml", tags: ["project-management","agile"] },
+        { cat: "Development Tools", name: "Jira (LTS)", path: "Infrastructure/development/jira/lts/docker-compose.yml", tags: ["project-management","stable"] },
+        { cat: "Development Tools", name: "Mattermost", path: "Infrastructure/development/mattermost/docker-compose.yml", tags: ["chat","communication"] },
+        { cat: "Development Tools", name: "pgAdmin", path: "Infrastructure/development/pgadmin/docker-compose.yml", tags: ["postgres","database","admin"] },
+        { cat: "Development Tools", name: "Plane", path: "Infrastructure/development/plane-selfhost/plane-app/docker-compose.yaml", tags: ["project-management","jira-alternative"] },
+        { cat: "Development Tools", name: "SonarQube", path: "Infrastructure/development/sonarqube/docker-compose.yml", tags: ["code-quality","analysis"] },
+
+        // Server / Self-Hosted
+        { cat: "Self-Hosted Apps", name: "Actual Budget", path: "server/actual-budget/docker-compose.yml", tags: ["finance","budget"] },
+        { cat: "Self-Hosted Apps", name: "Bazarr", path: "server/bazarr/docker-compose.yml", tags: ["media","subtitles"] },
+        { cat: "Self-Hosted Apps", name: "cAdvisor", path: "server/cadvisor/docker-compose.yml", tags: ["monitoring","containers"] },
+        { cat: "Self-Hosted Apps", name: "Changedetection.io", path: "server/changedetection.io/docker-compose.yml", tags: ["monitoring","web"] },
+        { cat: "Self-Hosted Apps", name: "Deemix", path: "server/deemix/docker-compose.yml", tags: ["music","download"] },
+        { cat: "Self-Hosted Apps", name: "Dockge", path: "server/dockge/docker-compose.yml", tags: ["management","compose"] },
+        { cat: "Self-Hosted Apps", name: "EarnApp", path: "server/earnapp/docker-compose.yml", tags: ["earn","passive"] },
+        { cat: "Self-Hosted Apps", name: "Epic Games Free", path: "server/epicgames-freegames/docker-compose.yml", tags: ["gaming","free"] },
+        { cat: "Self-Hosted Apps", name: "FileFlows", path: "server/fileflows/docker-compose.yml", tags: ["automation","files"] },
+        { cat: "Self-Hosted Apps", name: "Firefly III", path: "server/firefly-iii/docker-compose.yml", tags: ["finance","personal"] },
+        { cat: "Self-Hosted Apps", name: "Grafana", path: "server/grafana/docker-compose.yml", tags: ["monitoring","dashboard"] },
+        { cat: "Self-Hosted Apps", name: "Home Assistant", path: "server/home-assistant/docker-compose.yml", tags: ["iot","automation","smart-home"] },
+        { cat: "Self-Hosted Apps", name: "Homepage", path: "server/homepage/docker-compose.yml", tags: ["dashboard","startpage"] },
+        { cat: "Self-Hosted Apps", name: "Honeygain", path: "server/honeygain/docker-compose.yml", tags: ["earn","passive"] },
+        { cat: "Self-Hosted Apps", name: "Immich", path: "server/immich/docker-compose.yml", tags: ["photos","backup"] },
+        { cat: "Self-Hosted Apps", name: "Jellyfin", path: "server/jellyfin/docker-compose.yml", tags: ["media","streaming"] },
+        { cat: "Self-Hosted Apps", name: "Lidarr", path: "server/lidarr/docker-compose.yml", tags: ["media","music","arr"] },
+        { cat: "Self-Hosted Apps", name: "Navidrome", path: "server/navidrome/docker-compose.yml", tags: ["music","streaming"] },
+        { cat: "Self-Hosted Apps", name: "Nextcloud", path: "server/nextcloud/docker-compose.yml", tags: ["cloud","files","sync"] },
+        { cat: "Self-Hosted Apps", name: "Node Exporter", path: "server/node-exporter/docker-compose.yml", tags: ["monitoring","metrics"] },
+        { cat: "Self-Hosted Apps", name: "Overseerr", path: "server/overseerr/docker-compose.yml", tags: ["media","requests"] },
+        { cat: "Self-Hosted Apps", name: "Paperless-ngx", path: "server/paperless-ngx/docker-compose.yml", tags: ["documents","ocr"] },
+        { cat: "Self-Hosted Apps", name: "Plex", path: "server/plexmediaserver/docker-compose.yml", tags: ["media","streaming"] },
+        { cat: "Self-Hosted Apps", name: "Portainer", path: "server/portainer/docker-compose.yml", tags: ["management","docker"] },
+        { cat: "Self-Hosted Apps", name: "Prometheus", path: "server/prometheus/docker-compose.yml", tags: ["monitoring","metrics"] },
+        { cat: "Self-Hosted Apps", name: "Prowlarr", path: "server/prowlarr/docker-compose.yml", tags: ["media","indexer","arr"] },
+        { cat: "Self-Hosted Apps", name: "PyLoad", path: "server/pyload/docker-compose.yml", tags: ["download","manager"] },
+        { cat: "Self-Hosted Apps", name: "Radarr", path: "server/radarr/docker-compose.yml", tags: ["media","movies","arr"] },
+        { cat: "Self-Hosted Apps", name: "Scrutiny", path: "server/scrutiny/docker-compose.yml", tags: ["monitoring","hdd","smart"] },
+        { cat: "Self-Hosted Apps", name: "Sonarr", path: "server/sonarr/docker-compose.yml", tags: ["media","tv","arr"] },
+        { cat: "Self-Hosted Apps", name: "Transmission VPN", path: "server/transmission-openvpn/docker-compose.yml", tags: ["download","vpn","torrent"] },
+        { cat: "Self-Hosted Apps", name: "TubeArchivist", path: "server/tubearchivist/docker-compose.yml", tags: ["youtube","archive"] },
+        { cat: "Self-Hosted Apps", name: "Watchtower", path: "server/watchtower/docker-compose.yml", tags: ["auto-update","docker"] },
+
+        // Awesome Compose
+        { cat: "Awesome Examples", name: "Angular", path: "awesome/angular/compose.yaml", tags: ["angular","frontend"] },
+        { cat: "Awesome Examples", name: "Apache + PHP", path: "awesome/apache-php/compose.yaml", tags: ["apache","php"] },
+        { cat: "Awesome Examples", name: "ASP.NET + MSSQL", path: "awesome/aspnet-mssql/compose.yaml", tags: ["dotnet","mssql"] },
+        { cat: "Awesome Examples", name: "Django", path: "awesome/django/compose.yaml", tags: ["django","python"] },
+        { cat: "Awesome Examples", name: "ELK Stack", path: "awesome/elasticsearch-logstash-kibana/compose.yaml", tags: ["elastic","logstash","kibana"] },
+        { cat: "Awesome Examples", name: "FastAPI", path: "awesome/fastapi/compose.yaml", tags: ["fastapi","python","api"] },
+        { cat: "Awesome Examples", name: "Flask", path: "awesome/flask/compose.yaml", tags: ["flask","python"] },
+        { cat: "Awesome Examples", name: "Flask + Redis", path: "awesome/flask-redis/compose.yaml", tags: ["flask","redis","cache"] },
+        { cat: "Awesome Examples", name: "Gitea + PostgreSQL", path: "awesome/gitea-postgres/compose.yaml", tags: ["gitea","git","postgres"] },
+        { cat: "Awesome Examples", name: "Minecraft", path: "awesome/minecraft/compose.yaml", tags: ["minecraft","gaming"] },
+        { cat: "Awesome Examples", name: "Nextcloud + Postgres", path: "awesome/nextcloud-postgres/compose.yaml", tags: ["nextcloud","cloud","postgres"] },
+        { cat: "Awesome Examples", name: "Nextcloud + Redis + MariaDB", path: "awesome/nextcloud-redis-mariadb/compose.yaml", tags: ["nextcloud","redis","mariadb"] },
+        { cat: "Awesome Examples", name: "Nginx + ASP.NET + MySQL", path: "awesome/nginx-aspnet-mysql/compose.yaml", tags: ["nginx","dotnet","mysql"] },
+        { cat: "Awesome Examples", name: "Nginx + Flask + MongoDB", path: "awesome/nginx-flask-mongo/compose.yaml", tags: ["nginx","flask","mongodb"] },
+        { cat: "Awesome Examples", name: "Nginx + Flask + MySQL", path: "awesome/nginx-flask-mysql/compose.yaml", tags: ["nginx","flask","mysql"] },
+        { cat: "Awesome Examples", name: "Nginx + Golang", path: "awesome/nginx-golang/compose.yaml", tags: ["nginx","golang"] },
+        { cat: "Awesome Examples", name: "Nginx + Golang + MySQL", path: "awesome/nginx-golang-mysql/compose.yaml", tags: ["nginx","golang","mysql"] },
+        { cat: "Awesome Examples", name: "Nginx + Golang + PostgreSQL", path: "awesome/nginx-golang-postgres/compose.yaml", tags: ["nginx","golang","postgres"] },
+        { cat: "Awesome Examples", name: "Nginx + Node.js + Redis", path: "awesome/nginx-nodejs-redis/compose.yaml", tags: ["nginx","nodejs","redis"] },
+        { cat: "Awesome Examples", name: "Nginx + WSGI + Flask", path: "awesome/nginx-wsgi-flask/compose.yaml", tags: ["nginx","wsgi","flask"] },
+        { cat: "Awesome Examples", name: "Pi-hole + Cloudflared", path: "awesome/pihole-cloudflared-DoH/compose.yaml", tags: ["dns","adblock","cloudflare"] },
+        { cat: "Awesome Examples", name: "Plex", path: "awesome/plex/compose.yaml", tags: ["plex","media"] },
+        { cat: "Awesome Examples", name: "Portainer", path: "awesome/portainer/compose.yaml", tags: ["portainer","management"] },
+        { cat: "Awesome Examples", name: "PostgreSQL + pgAdmin", path: "awesome/postgresql-pgadmin/compose.yaml", tags: ["postgres","database","admin"] },
+        { cat: "Awesome Examples", name: "Prometheus + Grafana", path: "awesome/prometheus-grafana/compose.yaml", tags: ["prometheus","grafana","monitoring"] },
+        { cat: "Awesome Examples", name: "React + Express + MongoDB", path: "awesome/react-express-mongodb/compose.yaml", tags: ["react","express","mongodb"] },
+        { cat: "Awesome Examples", name: "React + Express + MySQL", path: "awesome/react-express-mysql/compose.yaml", tags: ["react","express","mysql"] },
+        { cat: "Awesome Examples", name: "React + Java + MySQL", path: "awesome/react-java-mysql/compose.yaml", tags: ["react","java","mysql"] },
+        { cat: "Awesome Examples", name: "React + Nginx", path: "awesome/react-nginx/compose.yaml", tags: ["react","nginx"] },
+        { cat: "Awesome Examples", name: "React + Rust + PostgreSQL", path: "awesome/react-rust-postgres/compose.yaml", tags: ["react","rust","postgres"] },
+        { cat: "Awesome Examples", name: "Spark + Java", path: "awesome/sparkjava/compose.yaml", tags: ["spark","java"] },
+        { cat: "Awesome Examples", name: "Spark + Java + MySQL", path: "awesome/sparkjava-mysql/compose.yaml", tags: ["spark","java","mysql"] },
+        { cat: "Awesome Examples", name: "Spring + PostgreSQL", path: "awesome/spring-postgres/compose.yaml", tags: ["spring","java","postgres"] },
+        { cat: "Awesome Examples", name: "Traefik + Golang", path: "awesome/traefik-golang/compose.yaml", tags: ["traefik","golang","proxy"] },
+        { cat: "Awesome Examples", name: "Vue.js", path: "awesome/vuejs/compose.yaml", tags: ["vuejs","frontend"] },
+        { cat: "Awesome Examples", name: "WasmEdge + Kafka + MySQL", path: "awesome/wasmedge-kafka-mysql/compose.yml", tags: ["wasm","kafka","mysql"] },
+        { cat: "Awesome Examples", name: "WasmEdge + MySQL + Nginx", path: "awesome/wasmedge-mysql-nginx/compose.yml", tags: ["wasm","mysql","nginx"] },
+        { cat: "Awesome Examples", name: "Wireguard", path: "awesome/wireguard/compose.yaml", tags: ["vpn","wireguard"] },
+        { cat: "Awesome Examples", name: "WordPress + MySQL", path: "awesome/wordpress-mysql/compose.yaml", tags: ["wordpress","cms","mysql"] },
+
+        // Communication
+        { cat: "Communication", name: "BigBlueButton", path: "Communication/bbb/docker-compose.yml", tags: ["video","meeting","webinar"] },
+        { cat: "Communication", name: "Asterisk", path: "Communication/docker-asterisk/docker-compose.yml", tags: ["voip","pbx","sip"] },
+        { cat: "Communication", name: "Routr", path: "Communication/routr/docker-compose.yml", tags: ["voip","sip","routing"] },
+
+        // CMS
+        { cat: "CMS", name: "Strapi", path: "CMS/strapi/docker-compose.yml", tags: ["cms","headless","api"] },
+
+        // Distributed
+        { cat: "Distributed", name: "Example Voting App", path: "Distributed/example-voting-app/docker-compose.yml", tags: ["voting","microservices","demo"] },
+
+        // Frameworks
+        { cat: "Frameworks", name: "Django", path: "Frameworks/Django/docker-compose.yml", tags: ["django","python","web"] },
+        { cat: "Frameworks", name: "Express.js", path: "Frameworks/Express/docker-compose.yml", tags: ["express","nodejs","api"] },
+        { cat: "Frameworks", name: "Next.js", path: "Frameworks/nextjs/docker-compose.yml", tags: ["nextjs","react","ssr"] },
+
+        // Laravel
+        { cat: "Laravel", name: "Laravel", path: "Laravel/docker-compose.yml", tags: ["laravel","php","web"] },
+        { cat: "Laravel", name: "Laravel Envoy", path: "Laravel/LaravelEnvoy/docker-compose.yml", tags: ["laravel","deployment","tasks"] },
+        { cat: "Laravel", name: "Laravel Webhook", path: "Laravel/LaravelWebhook/docker-compose.yml", tags: ["laravel","webhook"] },
+
+        // Stacks
+        { cat: "Stacks", name: "Camunda 8.6", path: "Stacks/BPMN/camunda-8.6/docker-compose.yaml", tags: ["bpmn","workflow","camunda"] },
+        { cat: "Stacks", name: "Oracle APEX", path: "Stacks/BPMN/OracleApex/docker-compose.yml", tags: ["oracle","apex","database"] },
+        { cat: "Stacks", name: "Go Simple", path: "Stacks/Go/simple/docker-compose.yml", tags: ["golang","simple"] },
+        { cat: "Stacks", name: "EspoCRM", path: "Stacks/PHP/espocrm/docker-compose.yml", tags: ["crm","php"] },
+        { cat: "Stacks", name: "PHP 5.6", path: "Stacks/PHP/php5.6/docker-compose.yml", tags: ["php","legacy"] },
+        { cat: "Stacks", name: "PHP 7.4", path: "Stacks/PHP/php7.4/docker-compose.yml", tags: ["php"] },
+        { cat: "Stacks", name: "PHP Latest", path: "Stacks/PHP/php-latest/docker-compose.yml", tags: ["php","latest"] },
+        { cat: "Stacks", name: "Yii2 Advanced", path: "Stacks/PHP/yii2-app-advanced/docker-compose.yml", tags: ["yii2","php","framework"] },
+        { cat: "Stacks", name: "Yii2 Docker", path: "Stacks/PHP/yii2-docker/docker-compose.yml", tags: ["yii2","php"] },
+        { cat: "Stacks", name: "Odoo 16", path: "Stacks/Python/odoo-16-docker-compose/docker-compose.yml", tags: ["odoo","erp","python"] },
+
+        // VPN
+        { cat: "VPN", name: "SoftEther VPN", path: "VPN/SoftetherVPN/docker-compose.yaml", tags: ["vpn","softether"] },
+        { cat: "VPN", name: "SoftEther VPN Client", path: "VPN/SoftetherVPN/docker-compose.vpnclient.yaml", tags: ["vpn","client"] },
+
+        // n8n
+        { cat: "n8n", name: "n8n with Caddy", path: "n8n-hosting/docker-caddy/docker-compose.yml", tags: ["n8n","automation","caddy"] },
+        { cat: "n8n", name: "n8n with PostgreSQL", path: "n8n-hosting/docker-compose/withPostgres/docker-compose.yml", tags: ["n8n","automation","postgres"] },
+        { cat: "n8n", name: "n8n with PostgreSQL + Worker", path: "n8n-hosting/docker-compose/withPostgresAndWorker/docker-compose.yml", tags: ["n8n","automation","worker"] },
+        { cat: "n8n", name: "n8n with SSL", path: "n8n-hosting/docker-compose/subfolderWithSSL/docker-compose.yml", tags: ["n8n","ssl","subfolder"] },
+
+        // Recently Added
+        { cat: "Recently Added", name: "Cronicle", path: "recently/cronicle/docker-compose.yml", tags: ["scheduler","cron","jobs"] },
+        { cat: "Recently Added", name: "Hopscotch", path: "recently/hopscotch/docker-compose.yml", tags: ["api","testing"] },
+        { cat: "Recently Added", name: "Judge0", path: "recently/judge0-v1.13.1/docker-compose.yml", tags: ["code","execution","judge"] },
+        { cat: "Recently Added", name: "OpenProject", path: "recently/openproject/compose/docker-compose.yml", tags: ["project-management","agile"] },
+        { cat: "Recently Added", name: "PostHog", path: "recently/posthog/docker-compose.yml", tags: ["analytics","product","tracking"] },
+    ];
+
+    const githubBase = "https://github.com/rivassh/docker-compose/blob/main/";
+
+    function render() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const categories = {};
+
+        data.forEach(item => {
+            const searchText = [item.name, item.cat, item.path, ...item.tags].join(' ').toLowerCase();
+            if (!query || searchText.includes(query)) {
+                if (!categories[item.cat]) categories[item.cat] = [];
+                categories[item.cat].push(item);
+            }
+        });
+
+        const container = document.getElementById('categories');
+        const noResults = document.getElementById('noResults');
+        const catNames = Object.keys(categories).sort();
+
+        if (catNames.length === 0) {
+            container.innerHTML = '';
+            noResults.classList.remove('hidden');
+            return;
+        }
+
+        noResults.classList.add('hidden');
+        let html = '';
+
+        catNames.forEach(cat => {
+            const items = categories[cat];
+            html += `
+                <div class="category">
+                    <div class="category-header" onclick="this.parentElement.querySelector('.category-items').classList.toggle('hidden')">
+                        <span class="category-title">${cat}</span>
+                        <span class="category-count">${items.length}</span>
+                    </div>
+                    <div class="category-items">
+                        ${items.map(item => `
+                            <a class="item" href="${githubBase}${item.path}" target="_blank" rel="noopener">
+                                <div class="item-icon">
+                                    <svg viewBox="0 0 16 16"><path d="M3.75 1.5a.25.25 0 00-.25.25v11.5c0 .138.112.25.25.25h8.5a.25.25 0 00.25-.25V4.664a.25.25 0 00-.073-.177l-2.914-2.914a.25.25 0 00-.177-.073H3.75zM2 1.75C2 .784 2.784 0 3.75 0h5.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0112.25 16h-8.5A1.75 1.75 0 012 14.25V1.75z"/></svg>
+                                </div>
+                                <div class="item-info">
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-path">${item.path}</div>
+                                </div>
+                                ${item.tags.slice(0, 2).map(t => `<span class="item-badge">${t}</span>`).join('')}
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    document.getElementById('searchInput').addEventListener('input', render);
+
+    const totalItems = data.length;
+    const totalCats = [...new Set(data.map(d => d.cat))].length;
+    document.getElementById('totalCount').textContent = totalItems;
+    document.getElementById('categoryCount').textContent = totalCats;
+
+    render();
+    </script>
+</body>
+</html>
