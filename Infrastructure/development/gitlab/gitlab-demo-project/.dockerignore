@@ -1,0 +1,15 @@
+# =============================================================================
+# .dockerignore – keep the build context small and deterministic
+# =============================================================================
+.git
+.gitignore
+.gitlab-ci.yml
+README.md
+.env
+.env.example
+*.md
+volumes/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store

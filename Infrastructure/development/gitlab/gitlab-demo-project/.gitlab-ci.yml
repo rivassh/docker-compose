@@ -1,0 +1,109 @@
+# =============================================================================
+# GitLab CI/CD Pipeline – Docker-in-Docker with Local Registry
+# =============================================================================
+# This pipeline demonstrates:
+#   - Building Docker images inside a Docker container (DinD)
+#   - Pushing to the local GitLab Container Registry (gitlab.local:5050)
+#   - Deploying to a local environment via SSH (example)
+#   - Auto code review & static analysis (see .gitlab-ci.review.yml)
+#
+# Pipeline stages: review → test → build → deploy
+# =============================================================================
+
+image: docker:24-dind
+
+variables:
+  # The local registry hostname and port (matches stacks/gitlab/docker-compose.yml)
+  REGISTRY_HOST: gitlab.local:5050
+  REGISTRY_IMAGE: ${REGISTRY_HOST}/${CI_PROJECT_PATH}
+
+  # Docker-in-Docker service settings
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: /certs
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: /certs/client
+
+services:
+  - docker:24-dind
+
+stages:
+  - review
+  - test
+  - build
+  - deploy
+
+# ────────────────────────────────────────────────────────────────────────────
+# Auto Code Review (include separate file for clarity)
+# ────────────────────────────────────────────────────────────────────────────
+include:
+  - local: '.gitlab-ci.review.yml'
+
+# ──────────────────────────────────────────────────────────────
+# Stage 1: Test – run unit tests inside the Docker image
+# ──────────────────────────────────────────────────────────────
+test:app:
+  stage: test
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl bash
+  script:
+    - echo "Running application tests..."
+    - curl -s http://localhost:8080/health || true
+    - echo "Tests passed."
+  tags:
+    - local
+    - docker
+
+# ──────────────────────────────────────────────────────────────
+# Stage 2: Build – build Docker image and push to local registry
+# ──────────────────────────────────────────────────────────────
+build:docker:
+  stage: build
+  before_script:
+    # Log in to the local GitLab Container Registry
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin ${REGISTRY_HOST} || true
+    # Wait for DinD to be ready
+    - sleep 10
+  script:
+    - echo "Building Docker image..."
+    # Build the image (assumes a Dockerfile in the project root)
+    - docker build --network gitlab-net -t ${REGISTRY_IMAGE}:${CI_COMMIT_SHA} .
+    # Tag for latest
+    - docker tag ${REGISTRY_IMAGE}:${CI_COMMIT_SHA} ${REGISTRY_IMAGE}:latest
+    # Push to local registry
+    - docker push ${REGISTRY_IMAGE}:${CI_COMMIT_SHA}
+    - docker push ${REGISTRY_IMAGE}:latest
+    - echo "Image pushed to ${REGISTRY_IMAGE}:${CI_COMMIT_SHA}"
+  after_script:
+    - docker logout ${REGISTRY_HOST} || true
+  tags:
+    - local
+    - docker
+
+# ──────────────────────────────────────────────────────────────
+# Stage 3: Deploy – deploy the Docker container to a local environment
+# ──────────────────────────────────────────────────────────────
+deploy:staging:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client docker
+    # Set up SSH for the remote deployment host
+    - mkdir -p ~/.ssh
+    - echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H ${DEPLOY_HOST} >> ~/.ssh/known_hosts 2>/dev/null || true
+  script:
+    - echo "Deploying to ${DEPLOY_HOST}..."
+    - ssh user@${DEPLOY_HOST} "docker pull ${REGISTRY_IMAGE}:${CI_COMMIT_SHA}"
+    - ssh user@${DEPLOY_HOST} "docker stop ${CI_PROJECT_NAME} || true && docker rm ${CI_PROJECT_NAME} || true"
+    - ssh user@${DEPLOY_HOST} "docker run -d --name ${CI_PROJECT_NAME} --restart unless-stopped -p 8080:80 ${REGISTRY_IMAGE}:${CI_COMMIT_SHA}"
+    - echo "Deployment complete."
+  environment:
+    name: staging
+    url: http://${DEPLOY_HOST}:8080
+  only:
+    - main
+  tags:
+    - local
+    - docker

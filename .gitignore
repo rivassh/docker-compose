@@ -26,3 +26,4 @@ node_modules/
 vendor/
 __pycache__/
 *.pyc
+.mim*

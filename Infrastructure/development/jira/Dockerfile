@@ -1,8 +1,8 @@
-FROM openjdk:11-bullseye
+FROM eclipse-temurin:17-jdk-focal
 
-LABEL maintainer="haxqer <haxqer666@gmail.com>" version="9.12.2"
+LABEL maintainer="haxqer <haxqer666@gmail.com>" version="10.7.3"
 
-ARG JIRA_VERSION=9.12.2
+ARG JIRA_VERSION=10.7.3
 # Production: jira-software jira-core
 ARG JIRA_PRODUCT=jira-software
 ARG AGENT_VERSION=1.3.3
@@ -12,9 +12,9 @@ ENV JIRA_USER=jira \
     JIRA_GROUP=jira \
     JIRA_HOME=/var/jira \
     JIRA_INSTALL=/opt/jira \
-    JVM_MINIMUM_MEMORY=1g \
-    JVM_MAXIMUM_MEMORY=3g \
-    JVM_CODE_CACHE_ARGS='-XX:InitialCodeCacheSize=1g -XX:ReservedCodeCacheSize=2g' \
+    JVM_MINIMUM_MEMORY=2g \
+    JVM_MAXIMUM_MEMORY=6g \
+    JVM_CODE_CACHE_ARGS='-XX:InitialCodeCacheSize=1g -XX:ReservedCodeCacheSize=3g' \
     AGENT_PATH=/var/agent \
     AGENT_FILENAME=atlassian-agent.jar
 

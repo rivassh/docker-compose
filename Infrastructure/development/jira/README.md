@@ -5,8 +5,8 @@
 [README](README.md) | [中文文档](README_zh.md)
 
 
-+ Long Term Support Version: v9.4.15
-+ Latest Version: v9.12.2
++ Long Term Support Version: v10.7.3
++ Latest Version: v10.7.3
 + [The new way](https://github.com/haxqer/jira/tree/build-your-own) of use allows you to conveniently upgrade and modify parameters on your own, and it offers convenient support for HTTPS (thanks to [xsharp](https://github.com/xsharp)).
 
 + [Arm Version](https://github.com/haxqer/jira#arm)
@@ -94,7 +94,7 @@ docker exec jira-srv java -jar /var/agent/atlassian-agent.jar \
 
 ```shell
 cd jira && git pull
-docker pull haxqer/jira:rm && docker-compose stop
+docker pull haxqer/jira:10.7.3 && docker-compose stop
 docker-compose rm
 ```
 

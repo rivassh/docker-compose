@@ -1,39 +1,22 @@
-services:
-  web:
-    image: 'gitlab/gitlab-ee:12.6.1-ee.0'
-    # restart: always
-    hostname: 'localhost'
-    # container_name: gitlab-ce
-    environment:
-      GITLAB_ROOT_PASSWORD: "testing1234"
-      GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://localhost'
-        gitlab_rails["gitlab_shell_ssh_port"] = 2224
-        registry_external_url 'https://my.gitlab:4567'
-    ports:
-      - '8080:80'
-      - '8443:443'
-      - '6022:6022'
-      - '4567:4567'
-    volumes:
-      - '$GITLAB_HOME/config:/etc/gitlab'
-      - '$GITLAB_HOME/logs:/var/log/gitlab'
-      - '$GITLAB_HOME/data:/var/opt/gitlab'
-#      - '$GITLAB_SRC/data:/opt/gitlab'
-    networks:
-      - gitlab
-  gitlab-runner:
-    image: gitlab/gitlab-runner:alpine
-    container_name: gitlab-runner    
-    # restart: always
-    depends_on:
-      - web
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - '$GITLAB_HOME/gitlab-runner:/etc/gitlab-runner'
-    networks:
-      - gitlab
+# Base docker-compose file for baseline infrastructure
+# Add your baseline services here (e.g., databases, caches, etc.)
+# This file is intentionally kept minimal; extend with stacks/gitlab/docker-compose.yml for GitLab ecosystem
+# Example baseline service (uncomment and adjust as needed):
+# services:
+#   postgres:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_USER: user
+#       POSTGRES_PASSWORD: password
+#       POSTGRES_DB: db
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     networks:
+#       - base-net
 
-networks:
-  gitlab:
-    name: gitlab-network
+# networks:
+#   base-net:
+#     driver: bridge
+
+# volumes:
+#   postgres_data:

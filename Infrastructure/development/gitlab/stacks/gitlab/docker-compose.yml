@@ -1,0 +1,136 @@
+# ===== GitLab Stack Overlay =====
+# Launch with:
+#   docker-compose -f docker-compose.yml -f stacks/gitlab/docker-compose.yml up -d
+#
+# Or if you have no baseline services:
+#   docker-compose -f stacks/gitlab/docker-compose.yml up -d
+#
+# This file defines:
+#   - gitlab: self-hosted GitLab with embedded Container Registry
+#   - gitlab-runner: CI runner that communicates with the GitLab instance
+
+services:
+  # ──────────────────────────────────────────────
+  # GitLab Community Edition
+  # ──────────────────────────────────────────────
+  gitlab:
+    image: ${GITLAB_IMAGE}
+    container_name: gitlab
+    hostname: ${GITLAB_HOSTNAME}
+    restart: unless-stopped
+    networks:
+      - gitlab-net
+    ports:
+      - "${GITLAB_HTTP_PORT}:80"       # Web UI + Git over HTTP
+      - "${GITLAB_REGISTRY_PORT}:5050" # Container Registry
+      - "${GITLAB_SSH_PORT}:22"        # SSH for Git pushes
+    environment:
+      # ── Core GitLab settings ──
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://${GITLAB_HOSTNAME}:${GITLAB_HTTP_PORT}'
+        registry_external_url 'http://${GITLAB_HOSTNAME}:${GITLAB_REGISTRY_PORT}'
+
+        # ── Resource optimization for local workstations ──
+        # Reduce Puma workers to lower memory footprint
+        gitlab_rails['puma_worker_processes'] = ${PUMA_WORKERS}
+        # Reduce Sidekiq concurrency
+        gitlab_rails['sidekiq_concurrency'] = ${SIDEKIQ_CONCURRENCY}
+        # Disable embedded Prometheus to save RAM
+        prometheus['enable'] = ${PROMETHEUS_ENABLED}
+
+        # ── Container Registry configuration ──
+        registry['enable'] = true
+        registry['host'] = '${GITLAB_HOSTNAME}'
+        registry['port'] = '${GITLAB_REGISTRY_PORT}'
+        registry['api_url'] = 'http://localhost:${GITLAB_REGISTRY_PORT}/'
+        registry['token_reissuing_disabled'] = false
+        registry['build_repository_port'] = '${GITLAB_REGISTRY_PORT}'
+        registry['http_secret'] = 'change-me'
+
+        # ── Runner settings ──
+        gitlab_rails['runners_registration_token'] = '${GITLAB_RUNNER_REGISTRATION_TOKEN}'
+        gitlab_rails['administration_installation_mode'] = 'non-ldap'
+
+        # ── Mail (development-friendly: log instead of send) ──
+        gitlab_rails['smtp_enable'] = false
+        gitlab_rails['gitlab_email_enabled'] = true
+        gitlab_rails['gitlab_email_from'] = 'gitlab@${GITLAB_HOSTNAME}'
+
+        # ── Timezone ──
+        gitlab_rails['timezone'] = 'UTC'
+
+    volumes:
+      - ${GITLAB_CONFIG_PATH}:/etc/gitlab
+      - ${GITLAB_LOGS_PATH}:/var/log/gitlab
+      - ${GITLAB_DATA_PATH}:/var/opt/gitlab
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    profiles:
+      - gitlab
+
+  # ──────────────────────────────────────────────
+  # GitLab Runner
+  # ──────────────────────────────────────────────
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: gitlab-runner
+    restart: unless-stopped
+    networks:
+      - gitlab-net
+    depends_on:
+      gitlab:
+        condition: service_healthy
+    volumes:
+      # Docker socket so the runner can spawn containers
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Runner configuration
+      - ./runner-config:/etc/gitlab-runner
+      # Cache directory
+      - ./runner-cache:/cache
+    environment:
+      # Runner registration settings
+      - GITLAB_RUNNER_REGISTRATION_TOKEN=${GITLAB_RUNNER_REGISTRATION_TOKEN}
+      - GITLAB_RUNNER_URL=http://gitlab:${GITLAB_HTTP_PORT}
+      - GITLAB_RUNNER_NAME=${GITLAB_RUNNER_NAME}
+      - RUNNER_DOCKER_HOST=auto
+      - RUNNER_DOCKER_PLATFORM=linux/amd64
+    command: >
+      sh -c '
+        # Wait for GitLab to be fully ready before registering
+        echo "Waiting for GitLab to become available..."
+        while ! curl -sf http://gitlab:${GITLAB_HTTP_PORT}/api/v4/version >/dev/null 2>&1; do
+          sleep 5
+        done
+        echo "GitLab is up. Registering runner..."
+
+        # Register the runner using docker-in-docker executor
+        gitlab-runner register --non-interactive \
+          --url "http://gitlab:${GITLAB_HTTP_PORT}" \
+          --registration-token "$${GITLAB_RUNNER_REGISTRATION_TOKEN}" \
+          --executor "docker" \
+          --description "Local Docker Runner" \
+          --tag-list "local,docker" \
+          --docker-image "alpine:latest" \
+          --docker-volumes "/var/run/docker.sock:/var/run/docker.sock" \
+          --docker-volumes "/cache:/cache" \
+          --docker-extra-hosts "gitlab.local:gitlab" \
+          --docker-network-mode "gitlab-net" \
+          --docker-privileged \
+          --name "$${GITLAB_RUNNER_NAME}" \
+          --run-untagged \
+          --locked=false
+
+        # Start the runner
+        gitlab-runner run
+      '
+    profiles:
+      - gitlab
+
+networks:
+  gitlab-net:
+    driver: bridge
+    name: gitlab-net
